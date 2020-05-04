@@ -135,7 +135,6 @@ int **alocar_matriz(){
 	return aux;
 }
 
-
 int main () {
 
 	int **mat = alocar_matriz();
@@ -149,8 +148,6 @@ int main () {
 	wavefront(mat, x_fantasma, y_fantasma, q);
 
 	print_matriz(mat);
-
-	// printf("%d\n", );
 
 	return 0;
 }
