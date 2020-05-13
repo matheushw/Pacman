@@ -1,3 +1,18 @@
+/*
+*   Modelagem Computacional em Grafos
+*
+*   Aluno: Matheus Barcellos de Castro Cunha
+*   NUSP: 11208238
+*
+*	Aluna: Maria Eduarda Kawakami Moreira
+*	NUSP: 11218751
+*/
+
+// mat[i+1][j]; //Baixo
+// mat[i-1][j]; //Cima
+// mat[i][j+1]; //Direita
+// mat[i][j-1]; //Esquerda
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,11 +20,6 @@
 
 #define MAXN 4
 #define MAXQ 1000
-
-// mat[i+1][j]; //Baixo
-// mat[i-1][j]; //Cima
-// mat[i][j+1]; //Direita
-// mat[i][j-1]; //Esquerda
 
 typedef struct element{
 	int x;
