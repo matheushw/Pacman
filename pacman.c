@@ -23,6 +23,30 @@ typedef struct {
 	ELEMENT *final;
 } QUEUE;
 
+int maior(int a, int b) {
+    return (a < b)? b : a;
+}
+
+int max_vizinho(int **mat, int i, int j){
+	int max = -1;
+	max = maior(mat[i+1][j],max); //Baixo
+	max = maior(mat[i-1][j],max); //Cima
+	max = maior(mat[i][j+1],max); //Direita
+	max = maior(mat[i][j-1],max); //Esquerda
+
+	return max;
+}
+
+int contar_maior(int **mat, int maximo, int i, int j){
+	int c = 0;
+	mat[i+1][j]==maximo? c++ : c; //Baixo
+	mat[i-1][j]==maximo? c++ : c; //Cima
+	mat[i][j+1]==maximo? c++ : c; //Direita
+	mat[i][j-1]==maximo? c++ : c; //Esquerda
+
+	return c;
+}
+
 ELEMENT *criar_elemento(int x, int y, int camada){
 	ELEMENT *aux = (ELEMENT*)malloc(sizeof(ELEMENT));
 	aux->x = x;
@@ -33,7 +57,7 @@ ELEMENT *criar_elemento(int x, int y, int camada){
 	return aux;
 } 
 
-QUEUE *cirar_queue(){
+QUEUE *criar_queue(){
 	QUEUE *aux = (QUEUE*)malloc(sizeof(QUEUE));
 	aux->size = 0;
 	aux->inicial = NULL;
@@ -96,6 +120,12 @@ void print_matriz(int **mat){
 	}
 }
 
+void percorrer(int *x, int *y, int**mat){
+	int max_viz = max_vizinho(mat, *y, *x);
+	int qnt_viz = contar_maior(mat, max_viz, *y, *x);
+	
+}
+
 void wavefront(int **mat, int x, int y, QUEUE *q){
 
 	if(y<(MAXN-1) && mat[y+1][x] && mat[y+1][x]==-1){ //Baixo
@@ -142,7 +172,7 @@ int main () {
 
 	scanf("%d %d", &x_fantasma, &y_fantasma);
 
-	QUEUE *q = cirar_queue();
+	QUEUE *q = criar_queue();
 	mat[y_fantasma][x_fantasma] = 0;
 	insert(q, x_fantasma, y_fantasma, 0);
 	wavefront(mat, x_fantasma, y_fantasma, q);
