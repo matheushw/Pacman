@@ -8,11 +8,6 @@
 *	NUSP: 11218751
 */
 
-// mat[i+1][j]; //Baixo
-// mat[i-1][j]; //Cima
-// mat[i][j+1]; //Direita
-// mat[i][j-1]; //Esquerda
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,29 +16,29 @@
 #define MAXN 4
 #define MAXQ 1000
 
-typedef struct element{
+typedef struct element{ //Estrutura criada para armazenar elementos da matriz na fila.
 	int x;
 	int y;
 	int camada;
 	struct element *prox;
 } ELEMENT;
 
-typedef struct {
+typedef struct { //Estrutura criada para representar a fila.
 	int size;
 	ELEMENT *inicial;
 	ELEMENT *final;
 } QUEUE;
 
-int GenerateRandoms(int upper) { 
+int GenerateRandoms(int upper) { //Função que gera um número aleatorio entre 0 e "upper".
     int num = (rand() % upper) + 1; 
     return num;
 }
 
-int maior(int a, int b) {
+int maior(int a, int b) { //Retorna o maior valor entre "a" e "b".
     return (a < b)? b : a;
 }
 
-int max_vizinho(int **mat, int i, int j){
+int max_vizinho(int **mat, int i, int j){ //Retorna o valor do vizinho de maior valor.
 	int max = -1;
 	max = (i<(MAXN-1))? maior(mat[i+1][j],max):max; //Baixo
 	max = (i>0)? maior(mat[i-1][j],max):max; //Cima
@@ -53,7 +48,7 @@ int max_vizinho(int **mat, int i, int j){
 	return max;
 }
 
-int contar_maior(int **mat, int maximo, int i, int j){
+int contar_maior(int **mat, int maximo, int i, int j){ //Conta quantos vizinhos de valor "maximo" existem.
 	int c = 0;
 	if(i<(MAXN-1)){
 		mat[i+1][j]==maximo? c++ : c; //Baixo
@@ -71,7 +66,7 @@ int contar_maior(int **mat, int maximo, int i, int j){
 	return c;
 }
 
-ELEMENT *criar_elemento(int x, int y, int camada){
+ELEMENT *criar_elemento(int x, int y, int camada){ //Aloca memória para um "ELEMENTO".
 	ELEMENT *aux = (ELEMENT*)malloc(sizeof(ELEMENT));
 	aux->x = x;
 	aux->y = y;
@@ -81,7 +76,7 @@ ELEMENT *criar_elemento(int x, int y, int camada){
 	return aux;
 } 
 
-QUEUE *criar_queue(){
+QUEUE *criar_queue(){ //Aloca memória para uma "QUEUE"(Fila).
 	QUEUE *aux = (QUEUE*)malloc(sizeof(QUEUE));
 	aux->size = 0;
 	aux->inicial = NULL;
@@ -90,7 +85,7 @@ QUEUE *criar_queue(){
 	return aux;
 }
 
-void print_queue(QUEUE *q){
+void print_queue(QUEUE *q){ //Função criada para debugar.
 	ELEMENT *aux = q->inicial;
 	while(aux){
 		printf("linha: %d||coluna: %d||camada: %d\n",aux->y,aux->x,aux->camada);
@@ -100,7 +95,7 @@ void print_queue(QUEUE *q){
 	return;
 }
 
-void insert(QUEUE *q, int x, int y, int camada){
+void insert(QUEUE *q, int x, int y, int camada){ //Inserir um elemento na fila.
 	ELEMENT *aux = criar_elemento(x,y,camada);
 
 	if(q->size == 0){
@@ -116,7 +111,7 @@ void insert(QUEUE *q, int x, int y, int camada){
 	return;
 }
 
-void pop_first(QUEUE *q){
+void pop_first(QUEUE *q){ //Excluir o primeiro elemento da fila.
 
 	if(q->size >= 1){
 		if(q->size == 1){
@@ -135,7 +130,7 @@ void pop_first(QUEUE *q){
 	return;
 }
 
-void print_matriz(int **mat, int x, int y){
+void print_matriz(int **mat, int x, int y){ //Printa o campo (matriz).
 	for (int i=0;i<MAXN;i++){
 		printf("|");
 		for (int j=0;j<MAXN;j++){
@@ -154,7 +149,7 @@ void print_matriz(int **mat, int x, int y){
 	}
 }
 
-int CheckMatrix(int **mat){
+int CheckMatrix(int **mat){ //Checa se o fantasma ja percorreu toda a matriz.
 	for (int i=0;i<MAXN;i++){
 		for (int j=0;j<MAXN;j++){
 			if (mat[i][j]!=-1) return 1;
@@ -163,16 +158,13 @@ int CheckMatrix(int **mat){
 	return 0;
 }
 
-void visitar(int *i, int *j, int**mat, int maior, int random){
+void visitar(int *i, int *j, int**mat, int maior, int random){ //Visita um dos vizinhos da posição dada.
 	int cont = 0;
 	if(*i>0 && mat[(*i)-1][*j] == maior) { //Cima
 		cont++;
 		if(cont == random) {
 			mat[(*i)-1][*j] = -1;
-			// printf("Cima. i:%d j: %d\n", (*i)-1, *j);
 			*i = (*i) - 1;
-			// print_matriz(mat);
-			// printf("----------------\n");
 			return;
 		}
 	}
@@ -180,21 +172,15 @@ void visitar(int *i, int *j, int**mat, int maior, int random){
 		cont++;
 		if(cont == random) {
 			mat[*i][(*j)+1] = -1;
-			// printf("Direita. i:%d j: %d\n", *i, (*j)+1);
 			*j = (*j) + 1;
-			// print_matriz(mat);
-			// printf("----------------\n");
 			return;
 		}
 	} 
-	if(*i<(MAXN-1) && mat[(*i)+1][*j] == maior) {//Baixo
+	if(*i<(MAXN-1) && mat[(*i)+1][*j] == maior) { //Baixo
 		cont++;
 		if(cont == random) {
 			mat[(*i)+1][*j] = -1;
-			// printf("Baixo. i:%d j: %d\n", (*i)+1, *j);
 			*i = (*i) + 1;
-			// print_matriz(mat);
-			// printf("----------------\n");
 			return;
 		}
 	}
@@ -202,10 +188,7 @@ void visitar(int *i, int *j, int**mat, int maior, int random){
 		cont++;
 		if(cont == random) {
 			mat[*i][(*j)-1] = -1;
-			// printf("Esquerda. i:%d j: %d\n", *i, (*j)-1);
 			*j = (*j) - 1;
-			// print_matriz(mat);
-			// printf("----------------\n");
 			return;
 		}
 	} 
@@ -213,19 +196,17 @@ void visitar(int *i, int *j, int**mat, int maior, int random){
 	return;
 }
 
-void percorrer(int *x, int *y, int**mat){
+void percorrer(int *x, int *y, int**mat){ //Mudar a posição do fantasma com base nos seus vizinhos.
 
 	int max_viz = max_vizinho(mat, *y, *x);
 	int qnt_viz = contar_maior(mat, max_viz, *y, *x);
 	int random = GenerateRandoms(qnt_viz);
-	// printf("max_viz: %d || qnt_viz: %d || random: %d\n", max_viz, qnt_viz, random);
 	visitar(y, x, mat, max_viz, random);
-	// printf("y_fantasta(i): %d || x_fantasma(j): %d\n", *y, *x);
 
 	return;
 }
 
-void wavefront(int **mat, int x, int y, QUEUE *q){
+void wavefront(int **mat, int x, int y, QUEUE *q){ //Função para realizar o wavefront.
 
 	if(y<(MAXN-1) && mat[y+1][x] && mat[y+1][x]==-1){ //Baixo
 		insert(q, x, y+1, q->inicial->camada+1);
@@ -250,7 +231,7 @@ void wavefront(int **mat, int x, int y, QUEUE *q){
 	return;
 }
 
-int **alocar_matriz(){
+int **alocar_matriz(){ //Alocando memória para a matriz que servirá como campo.
 	int **aux = (int**)malloc(sizeof(int*) * MAXN);
 	for (int i=0;i<MAXN;i++){
 		aux[i] = (int*)malloc(sizeof(int) * MAXN);
@@ -277,6 +258,7 @@ int main () {
 	*x_pacman = 0;
 	*y_pacman = 0;
 
+	printf("Determine a linha e a coluna do fantasma no campo:\n");
 	scanf("%d %d", x_fantasma, y_fantasma);
 
 	QUEUE *q = criar_queue();
@@ -285,7 +267,8 @@ int main () {
 	wavefront(mat, *x_fantasma, *y_fantasma, q);
 	mat[*y_fantasma][*x_fantasma] = -1;
 
-	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){
+	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){ //Enquanto o fantasma não estiver na posição
+	// do Pacman.
 		int aux = mat[*y_pacman][*x_pacman];
 		mat[*y_pacman][*x_pacman] = -2;
 		print_matriz(mat, *x_fantasma, *y_fantasma);
@@ -296,7 +279,7 @@ int main () {
 		mat[*y_pacman][*x_pacman] = aux;
 
 		percorrer(x_fantasma, y_fantasma, mat);
-		if(!CheckMatrix(mat)) {
+		if(!CheckMatrix(mat)) { //Caso o fantasma ja tenha percorrido toda a matriz.
 			mat[*y_fantasma][*x_fantasma] = 0;
 			insert(q, *x_fantasma, *y_fantasma, 0);
 			wavefront(mat, *x_fantasma, *y_fantasma, q);
