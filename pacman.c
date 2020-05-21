@@ -85,6 +85,16 @@ QUEUE *criar_queue(){ //Aloca memória para uma "QUEUE"(Fila).
 	return aux;
 }
 
+void limpar_fila(QUEUE *q){ //Desalocar memória.
+	ELEMENT *aux = q->inicial;
+	while(aux){
+		ELEMENT *aux2 = aux->prox;
+		free(aux);
+		aux = aux2;
+	}
+	free(q);
+}
+
 void print_queue(QUEUE *q){ //Função criada para debugar.
 	ELEMENT *aux = q->inicial;
 	while(aux){
@@ -263,23 +273,25 @@ int main () {
 
 	QUEUE *q = criar_queue();
 	mat[*y_fantasma][*x_fantasma] = 0;
-	insert(q, *x_fantasma, *y_fantasma, 0);
-	wavefront(mat, *x_fantasma, *y_fantasma, q);
-	mat[*y_fantasma][*x_fantasma] = -1;
+	insert(q, *x_fantasma, *y_fantasma, 0); //Inserindo o fantasma na fila.
+	wavefront(mat, *x_fantasma, *y_fantasma, q); //Fazer o wavefront a partir do fantasma e usando a fila "q".
+	mat[*y_fantasma][*x_fantasma] = -1; 
 
 	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){ //Enquanto o fantasma não estiver na posição
 	// do Pacman.
-		int aux = mat[*y_pacman][*x_pacman];
-		mat[*y_pacman][*x_pacman] = -2;
+		int aux = mat[*y_pacman][*x_pacman]; //Criando uma matriz axiliar para ajudar no processo de printar a 
+		//matriz na tela.
+		mat[*y_pacman][*x_pacman] = -2; //Sinalizar a poisção do pacman.
 		print_matriz(mat, *x_fantasma, *y_fantasma);
 		for (int i=0;i<MAXN;i++){
 			printf("---");
 		}
 		printf("-\n");
-		mat[*y_pacman][*x_pacman] = aux;
+		mat[*y_pacman][*x_pacman] = aux; //Matriz volta ao seu valor original.
 
-		percorrer(x_fantasma, y_fantasma, mat);
-		if(!CheckMatrix(mat)) { //Caso o fantasma ja tenha percorrido toda a matriz.
+		percorrer(x_fantasma, y_fantasma, mat); 
+		if(!CheckMatrix(mat)) { //Caso o fantasma ja tenha percorrido toda a matriz, o wavefront
+		//é executado novamente a partir da nova posição do fantasma.
 			mat[*y_fantasma][*x_fantasma] = 0;
 			insert(q, *x_fantasma, *y_fantasma, 0);
 			wavefront(mat, *x_fantasma, *y_fantasma, q);
@@ -288,6 +300,8 @@ int main () {
 		char comando;
 		scanf("\n%c", &comando);
 
+
+		//Movimentando o pacman pela matriz.
 		if(comando == 's' && (*y_pacman)<(MAXN-1)){ //Baixo
 			(*y_pacman) = (*y_pacman) + 1;
 		} else if(comando == 'w' && (*y_pacman)>0) { //Cima
@@ -301,6 +315,15 @@ int main () {
 	}
 
 	print_matriz(mat, *x_fantasma, *y_fantasma);
+	free(x_fantasma);
+	free(y_fantasma);
+	free(x_pacman);
+	free(y_pacman);
+	limpar_fila(q);
+	for (int i=0;i<MAXN;i++){
+		free(mat[i]);
+	}
+	free(mat);
 	printf("Perdeu!\n");
 
 	return 0;
