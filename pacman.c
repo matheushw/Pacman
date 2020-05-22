@@ -6,6 +6,18 @@
 *
 *	Aluna: Maria Eduarda Kawakami Moreira
 *	NUSP: 11218751
+*
+*	Neste EP o usuário decide a posição do fantasma na matriz, que é o campo do jogo, antes de começar a jogar.
+*	Logo após decidir essa posição o algoritmo se encarrega de criar uma fila "QUEUE" para podermos percorrer o 
+*	grafo em camadas, e o primeiro elemento inserido na fila é o fantasma, assim o tornando o centro da matriz. 
+*	Após esse momento o código começa a rodar a função "wavefront" para mapear a matriz. Dentro dessa função
+*	são testados quais vizinhos da posição dada (vertice pai) são acesiveis e os estados desses vizinhos (se 
+*	foram mapeados ou não, o que é sinalizado pelo seu valor na matriz). Caso não tenham sido mapeados e sejam
+*	acessiveis, os seus valores que são iguais a "-1" vão ser alterados para o valor da camada do vertice pai + 1
+*	e os mesmos serão inseridos na fila para podermos executar esse algoritmo com seus respectivos vizinhos de 
+*	maneira recursiva até passar por todos os vertices do grafo. Toda vez que o fantasma se movimenta a matriz
+*	é setada para o seu estado inicial (todos os seus valores iguais a -1), o fantasma é inserido na fila e o 
+*	algoritmo de Wavefront é executado novamente, para assim atualizar o mapeamento do jogo.
 */
 
 #include <stdio.h>
@@ -204,24 +216,28 @@ void percorrer(int *x, int *y, int**mat){ //Mudar a posição do pacman com base
 void wavefront(int **mat, int x, int y, QUEUE *q){ //Função para realizar o wavefront.
 
 	if(y<(MAXN-1) && mat[y+1][x]==-1){ //Baixo
-		insert(q, x, y+1, q->inicial->camada+1);
-		mat[y+1][x] = q->inicial->camada+1;
+		insert(q, x, y+1, q->inicial->camada+1); //Incluir vizinho válido na fila para percorrer a matriz 
+		//recursivamente
+		mat[y+1][x] = q->inicial->camada+1; //Indicando a camada do vizinho válido.
 	} if(y>0 && mat[y-1][x]==-1){ //Cima
-		insert(q, x, y-1, q->inicial->camada+1);
-		mat[y-1][x] = q->inicial->camada+1;
+		insert(q, x, y-1, q->inicial->camada+1);//Incluir vizinho válido na fila para percorrer a matriz 
+		//recursivamente
+		mat[y-1][x] = q->inicial->camada+1; //Indicando a camada do vizinho válido.
 	} if(x<(MAXN-1) && mat[y][x+1]==-1){ //Direita
-		insert(q, x+1, y, q->inicial->camada+1);
-		mat[y][x+1] = q->inicial->camada+1;
+		insert(q, x+1, y, q->inicial->camada+1);//Incluir vizinho válido na fila para percorrer a matriz 
+		//recursivamente
+		mat[y][x+1] = q->inicial->camada+1; //Indicando a camada do vizinho válido.
 	} if(x>0 && mat[y][x-1]==-1){ //Esquerda
-		insert(q, x-1, y, q->inicial->camada+1);
-		mat[y][x-1] = q->inicial->camada+1;
+		insert(q, x-1, y, q->inicial->camada+1);//Incluir vizinho válido na fila para percorrer a matriz 
+		//recursivamente
+		mat[y][x-1] = q->inicial->camada+1; //Indicando a camada do vizinho válido.
 	} 
 
-	pop_first(q);
+	pop_first(q); //Excluindo o primeiro elemento da fila para poder percorrer os outros.
 
-	if(q->size == 0) return;
+	if(q->size == 0) return; //Condição de parada.
 
-	wavefront(mat, q->inicial->x, q->inicial->y, q);
+	wavefront(mat, q->inicial->x, q->inicial->y, q); //Recursão.
 
 	return;
 }
@@ -250,6 +266,7 @@ int main () {
 
 	int *x_pacman = malloc(sizeof(int)); 
 	int *y_pacman = malloc(sizeof(int));
+
 	//Pacman sempre começa no canto superior esquerdo da matriz.
 	*x_pacman = 0;
 	*y_pacman = 0;
@@ -258,15 +275,12 @@ int main () {
 	printf("Determine a linha e a coluna do fantasma no campo:\n");
 	scanf("%d %d", x_fantasma, y_fantasma);
 
-	//TO DO cunha acho q aqui n precisa ter comentario, vc pode colocar na função do wavefront
-	//cm funciona e cm usa queue
-	QUEUE *q = criar_queue();
-	mat[*y_fantasma][*x_fantasma] = 0;
+	QUEUE *q = criar_queue(); //Iniciando a fila.
+	mat[*y_fantasma][*x_fantasma] = 0; //Sinalizando a posição do fantasma na matriz.
 	insert(q, *x_fantasma, *y_fantasma, 0); //Inserindo o fantasma na fila.
 	wavefront(mat, *x_fantasma, *y_fantasma, q); //Fazer o wavefront a partir do fantasma e usando a fila "q".
 
-	// Loop até que o Pacman chegue no fantasma.
-	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){
+	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){ //Loop até que o Pacman chegue no fantasma.
 
 		print_matriz(mat, *x_fantasma, *y_fantasma, *x_pacman, *y_pacman);
 		for (int i=0;i<MAXN;i++){
@@ -274,7 +288,7 @@ int main () {
 		}
 		printf("-\n");
 
-		percorrer(x_pacman, y_pacman, mat); 
+		percorrer(x_pacman, y_pacman, mat);  //Mudando a posição do pacman na matriz.
 
 		char comando;
 		scanf("\n%c", &comando);
@@ -291,16 +305,17 @@ int main () {
 			(*x_fantasma) = (*x_fantasma) - 1;
 		}
 
-		insert(q, *x_fantasma, *y_fantasma, 0);
-		//TO DO pq tem esse for for aqui? 
-		for (int i=0;i<MAXN;i++){
+
+		/////// Inicio do bloco de código para executar o algoritmo de Wavefront novamente e remapear a matriz ///////
+		insert(q, *x_fantasma, *y_fantasma, 0); //Inserindo o fantasma na fila.
+		for (int i=0;i<MAXN;i++){ //Setando a matriz para seu estado inicial.
 			for (int j=0;j<MAXN;j++){
 				mat[i][j] = -1;
 			}
 		}
-		mat[*y_fantasma][*x_fantasma] = 0;
-		//Refaz a matriz do wavefront a cada vez que o fantasma se move.
-		wavefront(mat, *x_fantasma, *y_fantasma, q);
+		mat[*y_fantasma][*x_fantasma] = 0; //Sinalizando a posição do fantasma na matriz.
+		wavefront(mat, *x_fantasma, *y_fantasma, q); //Executando o algoritmo de wavefront.
+		//////// Fim do bloco de código para executar o algoritmo de Wavefront novamente e remapear a matriz ////////
 		
 	}
 
