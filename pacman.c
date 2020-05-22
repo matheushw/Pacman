@@ -242,7 +242,7 @@ int **alocar_matriz(){ //Alocando memória para a matriz que servirá como campo
 
 int main () {
 
-	srand(time(0));
+	srand(time(0));	
 
 	int **mat = alocar_matriz();
 	int *x_fantasma = malloc(sizeof(int)); 
@@ -250,20 +250,23 @@ int main () {
 
 	int *x_pacman = malloc(sizeof(int)); 
 	int *y_pacman = malloc(sizeof(int));
+	//Pacman sempre começa no canto superior esquerdo da matriz.
 	*x_pacman = 0;
 	*y_pacman = 0;
 
+	//A posição do fantasma, que será controlado pelo usuário, será também escolhida pelo usuário.
 	printf("Determine a linha e a coluna do fantasma no campo:\n");
 	scanf("%d %d", x_fantasma, y_fantasma);
 
+	//TO DO cunha acho q aqui n precisa ter comentario, vc pode colocar na função do wavefront
+	//cm funciona e cm usa queue
 	QUEUE *q = criar_queue();
 	mat[*y_fantasma][*x_fantasma] = 0;
 	insert(q, *x_fantasma, *y_fantasma, 0); //Inserindo o fantasma na fila.
 	wavefront(mat, *x_fantasma, *y_fantasma, q); //Fazer o wavefront a partir do fantasma e usando a fila "q".
 
-
-	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){ //Enquanto o fantasma não estiver na posição
-	// do Pacman.
+	// Loop até que o Pacman chegue no fantasma.
+	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){
 
 		print_matriz(mat, *x_fantasma, *y_fantasma, *x_pacman, *y_pacman);
 		for (int i=0;i<MAXN;i++){
@@ -277,7 +280,7 @@ int main () {
 		scanf("\n%c", &comando);
 
 
-		//Movimentando o pacman pela matriz.
+		//Movimentando o pacman pela matriz recebendo o comando do usuário.
 		if(comando == 's' && (*y_fantasma)<(MAXN-1)){ //Baixo
 			(*y_fantasma) = (*y_fantasma) + 1;
 		} else if(comando == 'w' && (*y_pacman)>0) { //Cima
@@ -289,17 +292,21 @@ int main () {
 		}
 
 		insert(q, *x_fantasma, *y_fantasma, 0);
+		//TO DO pq tem esse for for aqui? 
 		for (int i=0;i<MAXN;i++){
 			for (int j=0;j<MAXN;j++){
 				mat[i][j] = -1;
 			}
 		}
 		mat[*y_fantasma][*x_fantasma] = 0;
+		//Refaz a matriz do wavefront a cada vez que o fantasma se move.
 		wavefront(mat, *x_fantasma, *y_fantasma, q);
 		
 	}
 
 	print_matriz(mat, *x_fantasma, *y_fantasma, *x_pacman, *y_pacman);
+	
+	//Frees
 	free(x_fantasma);
 	free(y_fantasma);
 	free(x_pacman);
