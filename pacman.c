@@ -294,7 +294,7 @@ int main () {
 		scanf("\n%c", &comando);
 
 
-		//Movimentando o pacman pela matriz recebendo o comando do usuário.
+		//Mudando as coordenadas do fantasma ao receber o comando do usuário.
 		if(comando == 's' && (*y_fantasma)<(MAXN-1)){ //Baixo
 			(*y_fantasma) = (*y_fantasma) + 1;
 		} else if(comando == 'w' && (*y_pacman)>0) { //Cima
