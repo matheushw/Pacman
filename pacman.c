@@ -139,17 +139,16 @@ void pop_first(QUEUE *q){ //Excluir o primeiro elemento da fila.
 	return;
 }
 
-void print_matriz(int **mat, int x, int y){ //Printa o campo (matriz).
+void print_matriz(int **mat, int x_f, int y_f, int x_p, int y_p){ //Printa o campo (matriz).
 	for (int i=0;i<MAXN;i++){
 		printf("|");
 		for (int j=0;j<MAXN;j++){
-			if(mat[i][j] == -2) {
+			if(x_p == j && y_p == i) {
 				printf("pm|");
-			}
-			else if (mat[i][j]>=1 && mat[i][j]<=9){
-				printf("0%d|", mat[i][j]);
-			} else if(x == j && y == i){
+			} else if(x_f == j && y_f == i){
 				printf("gh|");
+			} else if (mat[i][j]>=1 && mat[i][j]<=9){
+				printf("0%d|", mat[i][j]);
 			} else {
 				printf("%d|", mat[i][j]);
 			}
@@ -158,21 +157,11 @@ void print_matriz(int **mat, int x, int y){ //Printa o campo (matriz).
 	}
 }
 
-// int CheckMatrix(int **mat){ //Checa se o fantasma ja percorreu toda a matriz.
-// 	for (int i=0;i<MAXN;i++){
-// 		for (int j=0;j<MAXN;j++){
-// 			if (mat[i][j]!=-1) return 1;
-// 		}
-// 	}
-// 	return 0;
-// }
-
 void visitar(int *i, int *j, int**mat, int maior, int random){ //Visita um dos vizinhos da posição dada.
 	int cont = 0;
 	if(*i>0 && mat[(*i)-1][*j] == maior) { //Cima
 		cont++;
 		if(cont == random) {
-			// mat[(*i)-1][*j] = -1;
 			*i = (*i) - 1;
 			return;
 		}
@@ -180,7 +169,6 @@ void visitar(int *i, int *j, int**mat, int maior, int random){ //Visita um dos v
 	if(*j<(MAXN-1) && mat[*i][(*j)+1] == maior) { //Direita
 		cont++;
 		if(cont == random) {
-			// mat[*i][(*j)+1] = -1;
 			*j = (*j) + 1;
 			return;
 		}
@@ -188,7 +176,6 @@ void visitar(int *i, int *j, int**mat, int maior, int random){ //Visita um dos v
 	if(*i<(MAXN-1) && mat[(*i)+1][*j] == maior) { //Baixo
 		cont++;
 		if(cont == random) {
-			// mat[(*i)+1][*j] = -1;
 			*i = (*i) + 1;
 			return;
 		}
@@ -196,7 +183,6 @@ void visitar(int *i, int *j, int**mat, int maior, int random){ //Visita um dos v
 	if(*j>0 && mat[*i][(*j)-1] == maior) { //Esquerda
 		cont++;
 		if(cont == random) {
-			// mat[*i][(*j)-1] = -1;
 			*j = (*j) - 1;
 			return;
 		}
@@ -205,7 +191,7 @@ void visitar(int *i, int *j, int**mat, int maior, int random){ //Visita um dos v
 	return;
 }
 
-void percorrer(int *x, int *y, int**mat){ //Mudar a posição do fantasma com base nos seus vizinhos.
+void percorrer(int *x, int *y, int**mat){ //Mudar a posição do pacman com base nos seus vizinhos.
 
 	int max_viz = min_vizinho(mat, *y, *x);
 	int qnt_viz = contar_maior(mat, max_viz, *y, *x);
@@ -274,33 +260,19 @@ int main () {
 	mat[*y_fantasma][*x_fantasma] = 0;
 	insert(q, *x_fantasma, *y_fantasma, 0); //Inserindo o fantasma na fila.
 	wavefront(mat, *x_fantasma, *y_fantasma, q); //Fazer o wavefront a partir do fantasma e usando a fila "q".
-	// mat[*y_fantasma][*x_fantasma] = -1; 
-	// print_matriz(mat, *x_fantasma, *y_fantasma);
-	// for (int i=0;i<MAXN;i++){
-	// 		printf("---");
-	// }
-	// printf("-\n");
+
 
 	while(*x_fantasma != *x_pacman || *y_fantasma != *y_pacman){ //Enquanto o fantasma não estiver na posição
 	// do Pacman.
-		int aux = mat[*y_pacman][*x_pacman]; //Criando uma matriz axiliar para ajudar no processo de printar a 
-		//matriz na tela.
-		mat[*y_pacman][*x_pacman] = -2; //Sinalizar a poisção do pacman.
-		print_matriz(mat, *x_fantasma, *y_fantasma);
+
+		print_matriz(mat, *x_fantasma, *y_fantasma, *x_pacman, *y_pacman);
 		for (int i=0;i<MAXN;i++){
 			printf("---");
 		}
 		printf("-\n");
-		mat[*y_pacman][*x_pacman] = aux; //Matriz volta ao seu valor original.
 
 		percorrer(x_pacman, y_pacman, mat); 
-		// if(!CheckMatrix(mat)) { //Caso o fantasma ja tenha percorrido toda a matriz, o wavefront
-		// //é executado novamente a partir da nova posição do fantasma.
-			// mat[*y_fantasma][*x_fantasma] = 0;
-			// insert(q, *x_fantasma, *y_fantasma, 0);
-			// wavefront(mat, *x_fantasma, *y_fantasma, q);
-			// mat[*y_fantasma][*x_fantasma] = -1;
-		// }
+
 		char comando;
 		scanf("\n%c", &comando);
 
@@ -324,11 +296,10 @@ int main () {
 		}
 		mat[*y_fantasma][*x_fantasma] = 0;
 		wavefront(mat, *x_fantasma, *y_fantasma, q);
-		// mat[*y_fantasma][*x_fantasma] = -1;
 		
 	}
 
-	print_matriz(mat, *x_fantasma, *y_fantasma);
+	print_matriz(mat, *x_fantasma, *y_fantasma, *x_pacman, *y_pacman);
 	free(x_fantasma);
 	free(y_fantasma);
 	free(x_pacman);
